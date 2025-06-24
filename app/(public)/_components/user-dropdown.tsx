@@ -1,4 +1,4 @@
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   BookOpen,
   ChevronDownIcon,
@@ -18,9 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Link from "next/link";
-import { authClient } from "@/lib/auth-client";
-import { toast } from "sonner";
+import { useSignOut } from "@/hooks/use-signout";
 
 interface UserDropdownProps {
   name: string;
@@ -29,21 +27,7 @@ interface UserDropdownProps {
 }
 
 export default function UserDropdown({ name, email, image }: UserDropdownProps) {
-  const router = useRouter();
-
-  async function signOut() {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          toast.success("Deslogado com sucesso!");
-          router.push("/");
-        },
-        onError: () => {
-          toast.error("Erro ao deslogar, tente novamente.");
-        },
-      },
-    });
-  }
+  const handleSignOut = useSignOut();
 
   return (
     <DropdownMenu>
@@ -95,7 +79,7 @@ export default function UserDropdown({ name, email, image }: UserDropdownProps) 
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={signOut}>
+        <DropdownMenuItem onClick={handleSignOut}>
           <LogOutIcon size={16} className="opacity-60" aria-hidden="true" />
           <span>Sair</span>
         </DropdownMenuItem>
