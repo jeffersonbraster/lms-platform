@@ -39,6 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Editor from "@/components/rich-text-editor/editor";
 
 const CourseCreatePage = () => {
   const form = useForm<CourseSchemaType>({
@@ -164,11 +165,12 @@ const CourseCreatePage = () => {
                   <FormItem className="flex-1">
                     <FormLabel>Descrição</FormLabel>
                     <FormControl>
-                      <Textarea
+                      {/* <Textarea
                         placeholder="Ex: Curso de React Prático"
                         className="min-h-[200px]"
                         {...field}
-                      />
+                      /> */}
+                      <Editor field={field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
