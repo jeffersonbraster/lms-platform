@@ -40,6 +40,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Editor from "@/components/rich-text-editor/editor";
+import Uploader from "@/components/file-uploader/uploader";
 
 const CourseCreatePage = () => {
   const form = useForm<CourseSchemaType>({
@@ -165,11 +166,6 @@ const CourseCreatePage = () => {
                   <FormItem className="flex-1">
                     <FormLabel>Descrição</FormLabel>
                     <FormControl>
-                      {/* <Textarea
-                        placeholder="Ex: Curso de React Prático"
-                        className="min-h-[200px]"
-                        {...field}
-                      /> */}
                       <Editor field={field} />
                     </FormControl>
                     <FormMessage />
@@ -184,7 +180,7 @@ const CourseCreatePage = () => {
                   <FormItem className="flex-1">
                     <FormLabel>Thumbnail Image</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: thumbnail url" {...field} />
+                      <Uploader value={field.value} onChange={field.onChange} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
