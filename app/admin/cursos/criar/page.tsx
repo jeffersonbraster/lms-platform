@@ -1,6 +1,8 @@
 "use client";
 
+import { useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   courseCategories,
   courseLevels,
@@ -20,7 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ArrowLeft, PlusIcon, SparkleIcon } from "lucide-react";
+import { ArrowLeft, Loader2, PlusIcon, SparkleIcon } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -41,8 +43,14 @@ import {
 } from "@/components/ui/select";
 import Editor from "@/components/rich-text-editor/editor";
 import Uploader from "@/components/file-uploader/uploader";
+import { tryCatch } from "@/hooks/try-catch";
+import { createCourse } from "./actions";
+import { toast } from "sonner";
 
 const CourseCreatePage = () => {
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
   const form = useForm<CourseSchemaType>({
     resolver: zodResolver(courseSchema),
     defaultValues: {
@@ -60,7 +68,22 @@ const CourseCreatePage = () => {
   });
 
   function onSubmit(values: CourseSchemaType) {
-    console.log(values);
+    startTransition(async () => {
+      const { data: result, error } = await tryCatch(createCourse(values));
+
+      if(error) {
+        toast.error('Ocorreu um erro inesperado, tente novamente.')
+        return;
+      }
+
+      if(result.status === 'success') {
+        toast.success(result.message);
+        form.reset();
+        router.push(`/admin/cursos`);
+      } else if(result.status === 'error') {
+        toast.error(result.message);
+      }
+    })
   }
 
   return (
@@ -304,8 +327,17 @@ const CourseCreatePage = () => {
                 )}
               />
 
-              <Button type="submit">
-                Criar Curso <PlusIcon size={16} />
+              <Button type="submit" disabled={isPending}>
+                {isPending ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin mr-1" />
+                    Criando curso..
+                  </>
+                ) : (
+                  <>
+                    Criar Curso <PlusIcon size={16} />
+                  </>
+                )}
               </Button>
             </form>
           </Form>

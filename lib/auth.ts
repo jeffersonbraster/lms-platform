@@ -1,12 +1,11 @@
-import 'server-only'
-
 import { betterAuth } from "better-auth";
+import { admin } from "better-auth/plugins"
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { emailOTP } from "better-auth/plugins";
 import { prisma } from "./db";
 import { env } from "./env";
 import { resend } from "./resend";
- 
+
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
@@ -18,7 +17,7 @@ export const auth = betterAuth({
     },
   },
   plugins: [emailOTP({
-    async sendVerificationOTP({email, otp}) {
+    async sendVerificationOTP({ email, otp }) {
       await resend.emails.send({
         from: "LMS PLATFORM <oi@jeffersonbrandao.com.br>",
         to: [email],
@@ -28,5 +27,5 @@ export const auth = betterAuth({
         `
       })
     }
-  })],
+  }), admin()],
 });

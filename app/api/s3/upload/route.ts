@@ -5,6 +5,21 @@ import { NextResponse } from "next/server"
 import { z } from "zod"
 import { v4 as uuidv4 } from 'uuid'
 import { S3 } from "@/lib/s3-client"
+import arcjet, { detectBot, fixedWindow } from "@/lib/arcjet"
+import { requireAdmin } from "@/app/data/admin/require-admin"
+
+const aj = arcjet.withRule(
+  detectBot({
+    mode: 'LIVE',
+    allow: [],
+  })
+).withRule(
+  fixedWindow({
+    mode: 'LIVE',
+    window: "1m",
+    max: 5,
+  })
+)
 
 export const fileUploadSchema = z.object({
   fileName: z.string().min(1, "Nome do arquivo é obrigatório"),
@@ -14,7 +29,18 @@ export const fileUploadSchema = z.object({
 })
 
 export async function POST(request: Request) {
+  const session = await requireAdmin()
   try {
+    const decision = await aj.protect(request, {
+      fingerprint: session?.user?.id as string,
+    })
+
+    if(decision.isDenied()) {
+      return NextResponse.json({
+        error: 'Você atingiu o limite de uploads, tente novamente mais tarde.',
+      }, { status: 429 })
+    }
+
     const body = await request.json()
 
     const validation = fileUploadSchema.safeParse(body)
