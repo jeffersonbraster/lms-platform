@@ -46,7 +46,7 @@ const EditarPage = async ({ params }: { params: EditarPageProps }) => {
             </CardHeader>
 
             <CardContent>
-              <CourseStructure />
+              <CourseStructure data={data} />
             </CardContent>
           </Card>
         </TabsContent>
